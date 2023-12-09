@@ -1,9 +1,8 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
-import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { Suspense, useEffect } from "react";
+import "react-native-reanimated";
+import "react-native-gesture-handler";
 
 import {
     Manrope_200ExtraLight,
@@ -14,7 +13,6 @@ import {
     Manrope_700Bold,
     Manrope_800ExtraBold,
 } from "@expo-google-fonts/manrope";
-import { ActivityIndicator, View } from "react-native";
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -67,7 +65,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
     return (
-        <GluestackUIProvider>
+        <>
             <Stack
                 screenOptions={{
                     headerShown: false,
@@ -80,6 +78,6 @@ function RootLayoutNav() {
                 <Stack.Screen name="cart" />
                 <Stack.Screen name="products/[slug]" />
             </Stack>
-        </GluestackUIProvider>
+        </>
     );
 }

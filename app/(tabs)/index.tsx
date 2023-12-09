@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     View,
     Text,
@@ -9,23 +9,48 @@ import {
     Image,
     ActivityIndicator,
     Platform,
+    FlatList,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { CartIcon, CartWhiteIcon, SearchIcon } from "@/icons/NavbarIcons";
+import { styles } from "@/styles/HomePageStyles";
 
 import ProductCard from "@/components/ProductCard";
 import { Link, Stack, useRouter } from "expo-router";
 import axios from "axios";
 import { cartItems, allProducts } from "@/store/atoms";
 import { useAtom, useAtomValue } from "jotai";
+import * as Crypto from "expo-crypto";
+import * as Location from "expo-location";
+import { getGeocodedAddressFromCoords } from "@/utils/getGeocodedAddress";
 
 export default function index() {
     const [products, setProducts] = useAtom(allProducts);
     const cartItemsCount = useAtomValue(cartItems);
     const [cart, setCart] = useAtom(cartItems);
     const [location, setLocation] = useState(null);
+    const [address, setAddress] = useState<string | null>("Mumbai");
+    const sliderRef = useRef<FlatList>(null);
+    const [index, setIndex] = useState(0);
+    const autoplaySliderRef = useRef<NodeJS.Timeout | null>(null); // Adjust the type to NodeJS.Timeout
+    const base = process.env.EXPO_PUBLIC_BASE_URL;
 
     const router = useRouter();
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                console.log("Permission to access location was denied");
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+            const geocodedAddress = await getGeocodedAddressFromCoords(location);
+            setAddress(geocodedAddress as string);
+        })();
+    }, []);
 
     const addToCart = (id) => {
         const productId = `${id}`;
@@ -45,13 +70,41 @@ export default function index() {
     useEffect(() => {
         if (products.length === 0) {
             axios
-                .get("https://dummyjson.com/products")
+                .get(`${base}/products`)
                 .then((res) => {
                     setProducts(res.data.products);
                 })
                 .catch((error) => console.error("Error fetching products:", error));
         }
     }, []);
+
+    useEffect(() => {
+        const handleInterval = () => {
+            if (index < 5) {
+                setIndex(index + 1);
+            } else if (index === 5) {
+                setIndex(0);
+            }
+        };
+
+        autoplaySliderRef.current = setInterval(() => {
+            handleInterval();
+        }, 2000);
+
+        return () => {
+            if (autoplaySliderRef.current) {
+                clearInterval(autoplaySliderRef.current);
+            }
+        };
+    }, [index]);
+
+    useEffect(() => {
+        sliderRef.current?.scrollToIndex({
+            index,
+            animated: true,
+            viewPosition: 0.5,
+        });
+    }, [index]);
 
     if (products.length === 0) {
         return (
@@ -112,25 +165,19 @@ export default function index() {
                     </View>
                     <View>
                         <View style={styles.bannersContainer}>
-                            <ScrollView
-                                horizontal
-                                pagingEnabled
-                                showsHorizontalScrollIndicator={false}
-                                snapToAlignment="start"
-                                decelerationRate="fast"
-                                snapToOffsets={Array.from({ length: 6 }, (v, i) => i * (250 + 15))}
-                            >
-                                {[
+                            <FlatList
+                                data={[
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com_fOFqJSIMJ.png?updatedAt=1702067282781",
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com%20(1)_KpCVEhY5N.png?updatedAt=1702067295776",
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com%20(5)_Uzp1NdqeJ.png?updatedAt=1702068033274",
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com%20(3)_nhn4-XWAf.png?updatedAt=1702067307066",
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com%20(2)_0JkzCCFY9.png?updatedAt=1702067346623",
                                     "https://ik.imagekit.io/omraval/For%20more%20exclusive%20deals%20and%20discounts,%20site.com%20(4)_niW48Dkz7.png?updatedAt=1702067348059",
-                                ].map((imageUrl, index) => (
-                                    <View key={index} style={{ marginRight: 25 }}>
+                                ]}
+                                renderItem={({ item }) => (
+                                    <View key={Crypto.randomUUID()} style={{ marginRight: 25 }}>
                                         <Image
-                                            source={{ uri: imageUrl }}
+                                            source={{ uri: item }}
                                             style={{
                                                 aspectRatio: 2,
                                                 width: 300,
@@ -139,8 +186,19 @@ export default function index() {
                                             }}
                                         />
                                     </View>
-                                ))}
-                            </ScrollView>
+                                )}
+                                horizontal
+                                pagingEnabled
+                                showsHorizontalScrollIndicator={false}
+                                snapToAlignment="start"
+                                decelerationRate="fast"
+                                ref={sliderRef}
+                                initialScrollIndex={index}
+                                onScrollToIndexFailed={(info) => {
+                                    console.log("failed");
+                                }}
+                                snapToOffsets={Array.from({ length: 6 }, (v, i) => i * (250 + 15))}
+                            />
                         </View>
                         <View>
                             <Text style={styles.recommendTxt}>Recommended</Text>
@@ -164,117 +222,3 @@ export default function index() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    headerContainer: {
-        backgroundColor: "#2A4BA0",
-    },
-    headerBar: {
-        // paddingLeft: 20,
-        // marginTop: 52,
-        // flexDirection: "row",
-        // alignItems: "center",
-        // justifyContent: "space-between",
-        // paddingRight: 17,
-        flexDirection: "row",
-        width: "100%",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginTop: 48,
-        paddingLeft: 20,
-        paddingRight: 16,
-    },
-    headerBarName: {
-        color: "white",
-        fontSize: 22,
-    },
-    iconBox: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginRight: 16,
-    },
-    badge: {
-        position: "absolute",
-        top: -5,
-        right: -8,
-        backgroundColor: "#F9B023",
-        borderRadius: 100,
-        borderColor: "#2A4BA0",
-        borderWidth: 1,
-        paddingHorizontal: 6,
-        paddingVertical: 1.5,
-    },
-    badgeText: {
-        color: "#fff",
-        fontSize: 8,
-        fontFamily: "Manrope_700Bold",
-        fontWeight: "700",
-    },
-    searchBar: {
-        backgroundColor: "#153075",
-        borderColor: "transparent",
-        borderWidth: 1,
-        borderRadius: 32,
-        paddingLeft: 20,
-        marginLeft: 20,
-        marginRight: 20,
-        paddingVertical: 18,
-        marginTop: 54,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-    },
-
-    searchBarInput: {
-        color: "white",
-    },
-
-    deliveryDetails: {
-        flexDirection: "row",
-        marginTop: 30,
-        marginBottom: 12,
-        paddingLeft: 20,
-        paddingRight: 20,
-        justifyContent: "space-between",
-    },
-    deliveryAddr: {
-        gap: 4,
-    },
-    deliveryTime: {
-        gap: 4,
-    },
-    deliveryTitle: {
-        color: "#F8F9FB",
-        fontSize: 11,
-        fontWeight: "800",
-        fontFamily: "Manrope_800ExtraBold",
-        opacity: 0.5,
-    },
-    deliveryInfo: {
-        color: "#F8F9FB",
-        fontSize: 14,
-        fontWeight: "500",
-        fontFamily: "Manrope_500Medium",
-    },
-
-    bannersContainer: {
-        width: "100%",
-
-        marginLeft: 20,
-        marginTop: 28,
-    },
-    recommendTxt: {
-        paddingLeft: 20,
-        marginTop: 28,
-        fontSize: 30,
-    },
-    productGrid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        paddingLeft: 20,
-        paddingRight: Platform.OS === "ios" ? 0 : 20,
-        marginTop: 12,
-        paddingBottom: 100,
-    },
-});

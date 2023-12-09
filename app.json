@@ -4,11 +4,22 @@
         "web": {
             "bundler": "metro"
         },
-        "plugins": ["expo-router"],
+        "plugins": ["expo-router", "expo-location"],
         "name": "box",
         "slug": "box",
         "experiments": {
             "tsconfigPaths": true
+        },
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "aa4b3b3d-7330-4c35-91db-ffa1ba0234a1"
+            }
+        },
+        "android": {
+            "package": "com.omraval18.box"
         }
     }
 }

@@ -4,6 +4,7 @@ import { Stack, router } from "expo-router";
 import { styles } from "@/styles/CategoryPageStyles";
 import { SvgXml } from "react-native-svg";
 import { BackIcon } from "@/icons/NavbarIcons";
+import * as Crypto from "expo-crypto";
 
 const category = () => {
     return (
@@ -31,6 +32,7 @@ const category = () => {
                             "https://ik.imagekit.io/omraval/Get%20Comfiy%20with%20Comfortable%20Chair%20and%20More%20this%20Diwali.%20(3)_Mc851lGUJ.png?updatedAt=1702068882643",
                         ].map((imgUrl) => (
                             <Image
+                                key={Crypto.randomUUID()}
                                 source={{
                                     uri: imgUrl,
                                 }}

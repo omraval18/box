@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SvgXml } from "react-native-svg";
-// import { BackIcon, CartIcon, FavouriteIcon } from "@/icons/NavbarIcons";
 import Rating from "@/components/Ratings";
 import ImageSlider from "@/components/ImageSlider";
 import { styles } from "@/styles/ProductPageStyles";
@@ -30,6 +29,7 @@ export default function Product() {
     const [isFavourite, setIsFavourite] = useState(false);
     const [cart, setCart] = useAtom(cartItems);
     const [favourite, setFavourite] = useAtom(favouriteItems);
+    const base = process.env.EXPO_PUBLIC_BASE_URL;
 
     const cartItemsCount = cart.length;
     console.log(slug);
@@ -74,7 +74,7 @@ export default function Product() {
     useEffect(() => {
         const fetchProductData = async () => {
             try {
-                const response = await axios.get(`https://dummyjson.com/products/${slug}`);
+                const response = await axios.get(`${base}/products/${slug}`);
                 setProduct(response.data);
             } catch (error) {
                 console.error("Error fetching product:", error);

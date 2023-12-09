@@ -58,7 +58,7 @@ export default function cart() {
     //         try {
     //             const productDetailsPromises = cart.map(async (cartItem) => {
     //                 const response = await axios.get(
-    //                     `https://dummyjson.com/products/${cartItem.id}`
+    //                     `base/products/${cartItem.id}`
     //                 );
     //                 const productData = response.data;
     //                 return { ...productData, quantity: cartItem.quantity };
