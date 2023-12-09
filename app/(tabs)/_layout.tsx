@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Stack, Tabs, usePathname } from "expo-router";
-import { View } from "react-native";
-import { Navbar } from "@/components/Navbar";
+import { Platform, View } from "react-native";
 import { SvgUri, SvgXml } from "react-native-svg";
 import { HomeIcon } from "@/icons/NavbarIcons";
 import changeStrokeColor from "@/utils/StrokeChange";
@@ -26,7 +25,7 @@ export default function Layout() {
                 screenOptions={{
                     tabBarStyle: {
                         borderRadius: 20,
-                        height: 80,
+                        height: Platform.OS === "ios" ? 100 : 80,
                     },
                     tabBarLabelStyle: {
                         fontSize: 12,

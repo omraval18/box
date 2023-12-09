@@ -16,11 +16,19 @@ export const styles = StyleSheet.create({
     },
 
     categoryImg: {
-        maxWidth: 360,
-        height: 180,
         aspectRatio: 2,
         borderRadius: 30,
-        objectFit: Platform.OS === "ios" ? "fill" : "contain",
+        ...Platform.select({
+            ios: {
+                maxWidth: 280,
+                height: 140,
+            },
+            android: {
+                maxWidth: 360,
+                height: 180,
+                objectFit: "contain",
+            },
+        }),
     },
     categoryGrid: {
         width: "100%",

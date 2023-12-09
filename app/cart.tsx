@@ -9,6 +9,8 @@ import {
     ActivityIndicator,
     LayoutAnimation,
     ScrollView,
+    Platform,
+    Pressable,
 } from "react-native";
 import { BackIcon, CartIcon, EmptyCart, MinusIcon, PlusIcon } from "@/icons/NavbarIcons";
 import { SvgXml } from "react-native-svg";
@@ -170,7 +172,11 @@ export default function cart() {
 
                         <View style={{ marginTop: 36 }}>
                             {productList.map((product) => (
-                                <View key={product.id} style={styles.orderWrapper}>
+                                <Pressable
+                                    key={product.id}
+                                    style={styles.orderWrapper}
+                                    onPress={() => router.push(`/products/${product.id}`)}
+                                >
                                     <View style={styles.orderContainer}>
                                         <View style={styles.orderLeft}>
                                             <Image
@@ -181,7 +187,9 @@ export default function cart() {
                                             />
                                             <View>
                                                 <Text numberOfLines={1} ellipsizeMode="tail">
-                                                    {truncateMiddle(product.title, 16)}
+                                                    {Platform.OS === "ios"
+                                                        ? truncateMiddle(product.title, 12)
+                                                        : truncateMiddle(product.title, 16)}
                                                 </Text>
                                                 <Text numberOfLines={1} ellipsizeMode="tail">
                                                     ${product.price}
@@ -202,7 +210,7 @@ export default function cart() {
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                </View>
+                                </Pressable>
                             ))}
                         </View>
                     </ScrollView>
