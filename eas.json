@@ -2,7 +2,11 @@
     "build": {
         "preview": {
             "android": {
-                "buildType": "apk"
+                "buildType": "apk",
+                "env": {
+                    "EXPO_PUBLIC_BASE_URL": "https://dummyjson.com",
+                    "EXPO_PUBLIC_MAPS_KEY": "5169e7467119485b8514819e37a74490"
+                }
             }
         },
         "preview2": {

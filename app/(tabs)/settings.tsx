@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image } from "react-native";
 import React from "react";
 import { Stack, router } from "expo-router";
 import { styles } from "@/styles/SettingsPageStyles";
